@@ -1,0 +1,2649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Canbrelú - Admin</title>
+
+   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+
+    .estado-cliente {
+  font-size: 12px;
+  font-weight: normal;
+  margin-top: 4px;
+  color: #d9fdd3;
+  min-height: 14px;
+}
+    
+.header {
+  background: #075e54;
+  color: white;
+  padding: 18px;
+  font-size: 20px;
+  font-weight: bold;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#cerrarSesion {
+  border: none;
+  background: #ffffff;
+  color: #075e54;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#cerrarSesion:hover {
+  background: #eeeeee;
+}
+    body {
+      background: #f2f2f2;
+      height: 100vh;
+    }
+
+    .admin {
+  width: 100%;
+  max-width: none;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  background: white;
+  box-shadow: none;
+}
+
+    .clientes {
+      width: 300px;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      background: #ffffff;
+    }
+
+    .titulo-clientes {
+      background: #075e54;
+      color: white;
+      padding: 18px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+#contadorPendientes {
+  display: block;
+  font-size: 11px;
+  font-weight: normal;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+
+.filtros-clientes {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  background: #f5f5f5;
+}
+
+.filtros-clientes button {
+  flex: 1;
+  border: 1px solid #075e54;
+  background: white;
+  color: #075e54;
+  padding: 6px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.filtros-clientes button.activo {
+  background: #075e54;
+  color: white;
+}
+      
+    .buscador-clientes {
+  padding: 10px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.buscador-clientes input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+}
+
+.buscador-clientes input:focus {
+  border-color: #075e54;
+}
+    .cliente {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+    }
+
+    .cliente:hover {
+      background: #f5f5f5;
+    }
+
+    .cliente.activo {
+      background: #dcf8c6;
+    }
+
+.cliente.con-pendientes {
+  background: #e9fbe7;
+}
+
+.cliente.espera-respuesta {
+  border-left: 4px solid #25d366;
+}
+      
+    .cliente-nombre {
+      font-weight: bold;
+      color: #222;
+    }
+    
+.cliente-superior {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.notificacion {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: #25d366;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notificacion.oculta {
+  display: none;
+      }
+    
+    .cliente-id {
+      font-size: 11px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .header {
+      background: #075e54;
+      color: white;
+      padding: 18px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .mensajes {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background: #e5ddd5;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sin-chat {
+      margin: auto;
+      color: #777;
+      text-align: center;
+    }
+
+    .mensaje {
+      max-width: 80%;
+      padding: 9px 12px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      font-size: 15px;
+      word-wrap: break-word;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .cliente-msg {
+      background: white;
+      margin-right: auto;
+    }
+
+    .admin-msg {
+      background: #dcf8c6;
+      margin-left: auto;
+    }
+
+    .nombre {
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      color: #075e54;
+      margin-bottom: 4px;
+    }
+
+    .hora {
+      display: block;
+      font-size: 10px;
+      color: #777;
+      text-align: right;
+      margin-top: 5px;
+    }
+
+    .entrada {
+      display: flex;
+      padding: 10px;
+      gap: 8px;
+      background: #f0f0f0;
+    }
+
+    .entrada input {
+      flex: 1;
+      padding: 13px;
+      border: none;
+      border-radius: 25px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .entrada button {
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: #075e54;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .entrada button:hover {
+      background: #064c44;
+    }
+
+    .entrada input:disabled,
+    .entrada button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 700px) {
+      .admin {
+        flex-direction: column;
+      }
+
+      .clientes {
+        width: 100%;
+        height: 220px;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .chat {
+        flex: 1;
+      }
+    }
+
+      
+      /* ========================================
+   FICHA DEL CLIENTE
+======================================== */
+
+.modal-ficha {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-ficha.activa {
+  display: flex;
+}
+
+.ficha-cliente {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+
+.ficha-titulo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #075e54;
+  margin-bottom: 20px;
+}
+
+.ficha-cliente label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  margin-top: 12px;
+  margin-bottom: 5px;
+  color: #444;
+}
+
+.ficha-cliente input,
+.ficha-cliente textarea {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+}
+
+.ficha-cliente textarea {
+  resize: vertical;
+}
+
+.ficha-cliente input:focus,
+.ficha-cliente textarea:focus {
+  border-color: #075e54;
+}
+
+.ficha-botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.ficha-botones button {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#cerrarFicha {
+  background: #e5e5e5;
+  color: #333;
+}
+
+#guardarFicha {
+  background: #075e54;
+  color: white;
+}
+
+   .estado-lista-cliente {
+  font-size: 9px;
+  font-weight: normal;
+  color: #888;
+  margin-top: 3px;
+}
+
+.cliente-ultimo {
+  font-size: 12px;
+  color: #777;
+  margin-top: 3px;
+}
+      
+      </style>
+</head>
+
+<body>
+
+<!-- FICHA DEL CLIENTE -->
+<div id="modalFicha" class="modal-ficha">
+
+  <div class="ficha-cliente">
+
+    <div class="ficha-titulo">
+      👤 Ficha del cliente
+    </div>
+
+    <label>Nombre</label>
+    <input
+      type="text"
+      id="fichaNombre"
+      placeholder="Nombre del cliente"
+    >
+
+    <label>Teléfono</label>
+    <input
+      type="text"
+      id="fichaTelefono"
+      placeholder="Teléfono"
+    >
+
+    <label>Notas internas</label>
+    <textarea
+      id="fichaNotas"
+      placeholder="Escribí una nota..."
+      rows="5"
+    ></textarea>
+
+    <div class="ficha-botones">
+
+      <button
+        type="button"
+        id="cerrarFicha"
+      >
+        Cerrar
+      </button>
+
+      <button
+        type="button"
+        id="guardarFicha"
+      >
+        Guardar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+  
+<div class="admin">
+
+  <div class="clientes">
+  <div class="titulo-clientes">
+  Clientes
+  <span id="contadorPendientes">Pendientes: 0</span>
+</div>
+    <div class="filtros-clientes">
+  <button id="filtroTodos" class="activo">Todos</button>
+  <button id="filtroPendientes">Pendientes</button>
+</div>
+<div class="buscador-clientes">
+  <input
+    type="text"
+    id="buscarCliente"
+    placeholder="Buscar cliente..."
+    autocomplete="off"
+  >
+</div>
+
+<div id="listaClientes"></div>
+  </div>
+
+  <div class="chat">
+
+ <div class="header">
+
+  <div>
+    <div id="tituloChat">Seleccioná un cliente</div>
+    <div id="estadoCliente" class="estado-cliente"></div>
+  </div>
+
+  <button id="cerrarSesion">Cerrar sesión</button>
+
+</div>
+
+    <div class="mensajes" id="mensajes">
+      <div class="sin-chat">
+        Elegí un cliente de la lista para abrir la conversación.
+      </div>
+    </div>
+
+    <div class="entrada">
+      <input
+  type="file"
+  id="archivoAdmin"
+  hidden
+>
+
+<button
+  type="button"
+  id="botonArchivoAdmin"
+  title="Adjuntar archivo"
+  disabled
+>
+  📎
+</button>
+      <input
+        type="text"
+        id="mensaje"
+        placeholder="Escribí una respuesta..."
+        autocomplete="off"
+        disabled
+      >
+
+      <button id="botonEnviar" disabled>➤</button>
+    </div>
+
+  </div>
+
+</div>
+  
+<script type="module">
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  push,
+  set,
+  remove,
+  get,
+  onValue,
+  onChildAdded,
+  onChildChanged,
+  query,
+  orderByChild,
+  limitToLast
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+
+// ========================================
+// CONFIGURACIÓN FIREBASE
+// ========================================
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAn-7j5ip1DjEzb1kzWqBTx2PeTrdrePmk",
+  authDomain: "byzon-chat.firebaseapp.com",
+  databaseURL: "https://byzon-chat-default-rtdb.firebaseio.com",
+  projectId: "byzon-chat",
+  storageBucket: "byzon-chat.firebasestorage.app",
+  messagingSenderId: "1023832586199",
+  appId: "1:1023832586199:web:eaec8657b6f5dcd4e03d92"
+};
+
+// ========================================
+// INICIAR FIREBASE
+// ========================================
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+
+// ========================================
+// PROTEGER PANEL ADMIN
+// ========================================
+
+const ADMIN_UID = "tczgv6ivG0bNIh7gQbZvV6Uz3sy2";
+let panelIniciado = false;
+
+onAuthStateChanged(auth, (user) => {
+
+  if (!user || user.uid !== ADMIN_UID) {
+    
+    window.location.replace("login.html");
+    return;
+  }  if (!panelIniciado) {
+    panelIniciado = true;
+    iniciarPanelAdministrador();
+  }
+});
+
+
+// ========================================
+// ELEMENTOS HTML
+// ========================================
+
+const listaClientes =
+  document.getElementById("listaClientes");
+
+const listaMensajes =
+  document.getElementById("mensajes");
+
+const tituloChat =
+  document.getElementById("tituloChat");
+
+const input =
+  document.getElementById("mensaje");
+
+const botonEnviar =
+  document.getElementById("botonEnviar");
+
+const archivoAdmin =
+  document.getElementById("archivoAdmin");
+
+const botonArchivoAdmin =
+  document.getElementById("botonArchivoAdmin");
+  
+const cerrarSesion =
+  document.getElementById("cerrarSesion");
+  
+const buscarCliente =
+  document.getElementById("buscarCliente");
+
+const filtroTodos =
+  document.getElementById("filtroTodos");
+
+const filtroPendientes =
+  document.getElementById("filtroPendientes");
+  
+const contadorPendientes =
+  document.getElementById("contadorPendientes");
+  
+  const estadoCliente =
+  document.getElementById("estadoCliente");
+  
+
+// ========================================
+// VARIABLES
+// ========================================
+
+let usuarioSeleccionado = null;
+let nombreSeleccionado = "";
+let cancelarMensajes = null;
+let cancelarEstado = null;
+let cancelarEscribiendo = null;
+let cancelarLeidos = null;
+let clienteEstaEscribiendo = false;
+
+const parametrosURL = new URLSearchParams(window.location.search);
+const chatDesdeNotificacion = parametrosURL.get("chat");
+  
+const mensajesVistos = {};
+const listenersNotificaciones = {};
+  
+let totalNoLeidos = 0;
+function reproducirSonidoNotificacion() {
+
+  const audio = new Audio(
+    "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
+  );
+
+  audio.volume = 0.5;
+
+  audio.play().catch(() => {
+    console.log("El navegador bloqueó el sonido automático.");
+  });
+
+}
+
+
+function pedirPermisoNotificaciones() {
+
+  if (!("Notification" in window)) {
+    console.log("Este navegador no admite notificaciones.");
+    return;
+  }
+
+  if (Notification.permission === "default") {
+
+    Notification.requestPermission().then((permiso) => {
+
+      console.log(
+        "Permiso de notificaciones:",
+        permiso
+      );
+
+    });
+
+  }
+
+}
+
+
+document.addEventListener(
+  "click",
+  pedirPermisoNotificaciones,
+  { once: true }
+);
+
+
+function mostrarNotificacionNavegador(
+  usuarioId,
+  nombre,
+  texto
+) {
+
+  if (
+    !("Notification" in window) ||
+    Notification.permission !== "granted"
+  ) {
+    return;
+  }
+
+ const notificacion = new Notification(
+  "Nuevo mensaje de " + nombre,
+  {
+    body: texto
+  }
+);
+
+notificacion.onclick = () => {
+
+  window.focus();
+
+  abrirConversacion(
+    usuarioId,
+    nombre
+  );
+
+  notificacion.close();
+
+};
+}
+  
+
+// ========================================
+// CERRAR SESIÓN
+// ========================================
+
+cerrarSesion.addEventListener("click", async () => {
+
+  await signOut(auth);
+
+  window.location.replace("login.html");
+
+});
+
+
+// ========================================
+// ACTUALIZAR BURBUJA DE NOTIFICACIÓN
+// ========================================
+
+function actualizarNotificacion(usuarioId) {
+
+  document
+    .querySelectorAll(".cliente")
+    .forEach(cliente => {
+
+      const id =
+        cliente.querySelector(".cliente-id");
+
+      if (!id || id.textContent !== usuarioId) {
+        return;
+      }
+
+      const notificacion =
+        cliente.querySelector(".notificacion");
+
+      if (!notificacion) return;
+
+      const nombre =
+      cliente.querySelector(".cliente-nombre");
+    
+      const cantidad =
+      mensajesVistos[usuarioId] || 0;
+
+      if (cantidad > 0) {
+
+        notificacion.textContent = cantidad;
+
+        notificacion.classList.remove("oculta");
+
+        cliente.classList.add("con-pendientes");
+        
+        if (nombre) {
+        nombre.style.color = "#075e54";
+        nombre.style.fontWeight = "bold";
+        }
+        
+        nombre.style.fontWeight = "bold";
+        nombre.style.color = "#075e54";
+      
+      } else {
+
+        notificacion.textContent = "0";
+
+        notificacion.classList.add("oculta");
+
+        cliente.classList.remove("con-pendientes");
+        
+        if (nombre) {
+        nombre.style.color = "#222";
+        nombre.style.fontWeight = "bold";
+}
+  }
+    });
+
+}
+
+  function actualizarContadorPendientes() {
+
+  const cantidad =
+    document.querySelectorAll(
+      ".cliente.espera-respuesta"
+    ).length;
+
+  contadorPendientes.textContent =
+    "Pendientes: " + cantidad;
+
+}
+  
+function actualizarTituloPagina() {
+
+  if (totalNoLeidos > 0) {
+
+    document.title =
+      "(" + totalNoLeidos + ") Red Canbrelú - Admin";
+
+  } else {
+
+    document.title =
+      "Red Canbrelú - Admin";
+
+  }
+
+}
+
+// ========================================
+// ACTIVAR NOTIFICACIONES DE UN CLIENTE
+// ========================================
+
+function activarNotificaciones(usuarioId) {
+
+  if (listenersNotificaciones[usuarioId]) {
+    return;
+  }
+
+  const referenciaMensajes = query(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/mensajes"
+    ),
+    limitToLast(1)
+  );
+
+  let primerMensaje = true;
+
+  listenersNotificaciones[usuarioId] =
+    onChildAdded(
+      referenciaMensajes,
+      (snapshot) => {
+
+        const datos = snapshot.val();
+
+        if (!datos) return;
+
+
+        // Al abrir el administrador,
+        // ignorar el último mensaje que ya existía
+        if (primerMensaje) {
+
+          primerMensaje = false;
+
+          return;
+        }
+
+
+        // Ignorar mensajes enviados por administrador
+        if (datos.tipo === "admin") {
+          return;
+        }
+
+
+        // Si estamos mirando este chat,
+        // no generar notificación
+        if (usuarioSeleccionado === usuarioId) {
+          return;
+        }
+
+
+        if (!mensajesVistos[usuarioId]) {
+          mensajesVistos[usuarioId] = 0;
+        }
+
+        mensajesVistos[usuarioId]++;
+
+        totalNoLeidos++;
+
+        actualizarNotificacion(usuarioId);
+
+        actualizarTituloPagina();
+
+
+        const clienteNuevo =
+          [...document.querySelectorAll(".cliente")]
+            .find(cliente => {
+
+              const id =
+                cliente.querySelector(".cliente-id");
+
+              return (
+                id &&
+                id.textContent === usuarioId
+              );
+
+            });
+
+        if (clienteNuevo) {
+          listaClientes.prepend(clienteNuevo);
+        }
+
+
+        reproducirSonidoNotificacion();
+
+        mostrarNotificacionNavegador(
+          usuarioId,
+          datos.nombre || "Cliente",
+          datos.texto || "Nuevo mensaje"
+        );
+
+      }
+    );
+
+}
+
+// ========================================
+// LISTAR CLIENTES
+// ========================================
+
+function iniciarPanelAdministrador() {
+const consultaConversaciones = query(
+  ref(db, "conversaciones"),
+  orderByChild("ultimoMensaje"),
+  limitToLast(50)
+);
+
+onValue(
+  consultaConversaciones,
+  (snapshot) => {
+
+    listaClientes.innerHTML = "";
+
+    const conversaciones =
+      snapshot.val();
+
+    if (!conversaciones) {
+
+      listaClientes.innerHTML =
+        '<div style="padding:15px;color:#777;">Todavía no hay clientes.</div>';
+
+      return;
+
+    }
+
+    Object.entries(conversaciones)
+  .sort((a, b) => {
+
+    const fechaA =
+      a[1].ultimoMensaje || 0;
+
+    const fechaB =
+      b[1].ultimoMensaje || 0;
+
+    return fechaB - fechaA;
+  })
+  .forEach(
+    ([usuarioId, conversacion]) => {
+
+        if (!conversacion.info) {
+          return;
+        }
+
+        const info =
+          conversacion.info;
+
+
+        // CONTENEDOR CLIENTE
+
+        const cliente =
+          document.createElement("div");
+
+        cliente.classList.add("cliente");
+
+        if (usuarioId === usuarioSeleccionado) {
+          cliente.classList.add("activo");
+        }
+
+
+        // PARTE SUPERIOR
+
+        const superior =
+          document.createElement("div");
+
+        superior.classList.add(
+          "cliente-superior"
+        );
+
+
+        // NOMBRE
+
+        const nombre =
+          document.createElement("div");
+
+        nombre.classList.add(
+          "cliente-nombre"
+        );
+
+        nombre.textContent =
+          info.nombre || "Usuario";
+
+      // BOTÓN PARA EDITAR NOMBRE DEL CLIENTE
+const editarNombre =
+  document.createElement("button");
+
+editarNombre.textContent = "✏️";
+editarNombre.title = "Cambiar nombre";
+
+editarNombre.style.border = "none";
+editarNombre.style.background = "transparent";
+editarNombre.style.cursor = "pointer";
+editarNombre.style.fontSize = "14px";
+editarNombre.style.marginLeft = "6px";
+
+      // BOTÓN FICHA DEL CLIENTE
+const botonFicha =
+  document.createElement("button");
+
+botonFicha.textContent = "👤";
+botonFicha.title = "Ficha del cliente";
+
+botonFicha.style.border = "none";
+botonFicha.style.background = "transparent";
+botonFicha.style.cursor = "pointer";
+botonFicha.style.fontSize = "14px";
+botonFicha.style.marginLeft = "4px";
+botonFicha.addEventListener("click", (event) => {
+
+  event.stopPropagation();
+
+  const modalFicha =
+    document.getElementById("modalFicha");
+
+  const fichaNombre =
+    document.getElementById("fichaNombre");
+
+  const fichaTelefono =
+    document.getElementById("fichaTelefono");
+
+  const fichaNotas =
+    document.getElementById("fichaNotas");
+
+  fichaNombre.value =
+    info.nombre || "";
+
+  fichaTelefono.value =
+    info.telefono || "";
+
+  fichaNotas.value =
+    info.notas || "";
+
+  modalFicha.dataset.usuarioId =
+    usuarioId;
+
+  modalFicha.classList.add("activa");
+
+});
+      
+editarNombre.addEventListener("click", async (event) => {
+
+  event.stopPropagation();
+
+  const nombreActual =
+    info.nombre || "Usuario";
+
+  const nuevoNombre = prompt(
+    "Nuevo nombre del cliente:",
+    nombreActual
+  );
+
+  if (nuevoNombre === null) return;
+
+  const nombreLimpio =
+    nuevoNombre.trim();
+
+  if (nombreLimpio === "") {
+    alert("El nombre no puede quedar vacío.");
+    return;
+  }
+
+  try {
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/info/nombre"
+      ),
+      nombreLimpio
+    );
+
+    nombre.textContent = nombreLimpio;
+
+  } catch (error) {
+
+    console.error(
+      "Error al cambiar nombre:",
+      error
+    );
+
+    alert("No se pudo cambiar el nombre.");
+  }
+
+});
+      
+// ESTADO DEL CLIENTE EN LA LISTA
+
+const estadoLista =
+  document.createElement("div");
+
+estadoLista.classList.add(
+  "estado-lista-cliente"
+);
+
+estadoLista.textContent = "";
+     const estado = conversacion.estado;
+
+if (estado) {
+
+  if (estado.enLinea === true) {
+
+    estadoLista.textContent = "🟢 En línea";
+
+  } else if (estado.ultimaConexion) {
+
+    const fecha =
+      new Date(estado.ultimaConexion);
+
+    const hoy =
+      new Date();
+
+    const esHoy =
+      fecha.toDateString() ===
+      hoy.toDateString();
+
+    if (esHoy) {
+
+      estadoLista.textContent =
+        "Última vez hoy " +
+        fecha.toLocaleTimeString(
+          "es-AR",
+          {
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
+    } else {
+
+      estadoLista.textContent =
+        "Última vez " +
+        fecha.toLocaleDateString(
+          "es-AR",
+          {
+            day: "2-digit",
+            month: "2-digit"
+          }
+        );
+
+    }
+
+  }
+
+}
+
+      const referenciaEstadoLista = ref(
+  db,
+  "conversaciones/" + usuarioId + "/estado"
+);
+      
+onValue(
+  referenciaEstadoLista,
+  (snapshot) => {
+
+    const estado = snapshot.val();
+
+    if (!estado) {
+      estadoLista.textContent = "";
+      return;
+    }
+
+    if (estado.enLinea === true) {
+      estadoLista.textContent = "🟢 En línea";
+      return;
+    }
+
+    if (estado.ultimaConexion) {
+
+      const fecha =
+        new Date(estado.ultimaConexion);
+
+      const hoy =
+        new Date();
+
+      const esHoy =
+        fecha.toDateString() ===
+        hoy.toDateString();
+
+      if (esHoy) {
+
+        estadoLista.textContent =
+          "Última vez hoy " +
+          fecha.toLocaleTimeString(
+            "es-AR",
+            {
+              hour: "2-digit",
+              minute: "2-digit"
+            }
+          );
+
+      } else {
+
+        estadoLista.textContent =
+          "Última vez " +
+          fecha.toLocaleDateString(
+            "es-AR",
+            {
+              day: "2-digit",
+              month: "2-digit"
+            }
+          );
+
+      }
+
+    }
+
+  }
+);
+      const horaUltimo =
+  document.createElement("div");
+
+horaUltimo.style.fontSize = "11px";
+horaUltimo.style.color = "#888";
+horaUltimo.style.whiteSpace = "nowrap";
+
+if (conversacion.ultimoMensaje) {
+
+  const fechaUltimo =
+    new Date(conversacion.ultimoMensaje);
+
+  const hoy =
+    new Date();
+
+  const esHoy =
+    fechaUltimo.toDateString() ===
+    hoy.toDateString();
+
+  if (esHoy) {
+
+    horaUltimo.textContent =
+      fechaUltimo.toLocaleTimeString(
+        "es-AR",
+        {
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      );
+
+  } else {
+
+    horaUltimo.textContent =
+      fechaUltimo.toLocaleDateString(
+        "es-AR",
+        {
+          day: "2-digit",
+          month: "2-digit"
+        }
+      );
+
+  }
+
+}
+
+        // NOTIFICACIÓN
+
+        const notificacion =
+          document.createElement("div");
+
+        notificacion.classList.add(
+          "notificacion",
+          "oculta"
+        );
+
+        const cantidad =
+          mensajesVistos[usuarioId] || 0;
+
+        if (cantidad > 0) {
+
+          notificacion.textContent =
+            cantidad;
+
+          notificacion.classList.remove(
+            "oculta"
+          );
+
+        } else {
+
+          notificacion.textContent = "0";
+
+        }
+
+       const datosNombre =
+        document.createElement("div");
+
+        datosNombre.appendChild(nombre);
+        datosNombre.appendChild(editarNombre);
+        datosNombre.appendChild(botonFicha);
+        datosNombre.appendChild(estadoLista);
+        
+        superior.appendChild(datosNombre);
+        superior.appendChild(horaUltimo);
+        superior.appendChild(notificacion);
+
+
+        // ID CLIENTE
+
+        const id =
+          document.createElement("div");
+
+        id.classList.add("cliente-id");
+
+        id.textContent = usuarioId;
+
+// ÚLTIMO MENSAJE
+
+const ultimo =
+  document.createElement("div");
+
+ultimo.classList.add("cliente-ultimo");
+
+const textoUltimo =
+  conversacion.ultimoTexto || "Sin mensajes";
+
+if (
+  textoUltimo !== "Sin mensajes" &&
+  !textoUltimo.startsWith("Vos:")
+) {
+  cliente.classList.add("espera-respuesta");
+  actualizarContadorPendientes();
+}
+      
+ultimo.textContent =
+  textoUltimo.length > 45
+    ? textoUltimo.substring(0, 45) + "..."
+    : textoUltimo;
+      
+        cliente.appendChild(superior);
+        cliente.appendChild(ultimo);
+        cliente.appendChild(id);
+
+
+        // ABRIR CONVERSACIÓN
+
+        cliente.addEventListener(
+          "click",
+          () => {
+
+            abrirConversacion(
+              usuarioId,
+              info.nombre || "Usuario"
+            );
+
+          }
+        );
+
+
+        listaClientes.appendChild(cliente);
+
+      actualizarContadorPendientes();
+
+// ABRIR AUTOMÁTICAMENTE EL CHAT DESDE UNA NOTIFICACIÓN
+if (
+  chatDesdeNotificacion &&
+  usuarioId === chatDesdeNotificacion
+) {
+  abrirConversacion(
+    usuarioId,
+    info.nombre || "Usuario"
+  );
+
+window.history.replaceState(
+  {},
+  document.title,
+  window.location.pathname
+);
+  
+}
+      
+        // Activar avisos para ese cliente
+
+        activarNotificaciones(usuarioId);
+
+      }
+    );
+
+  }
+);
+}
+
+// ========================================
+// ABRIR CONVERSACIÓN
+// ========================================
+
+function abrirConversacion(
+  usuarioId,
+  nombre
+) {
+
+  usuarioSeleccionado = usuarioId;
+  nombreSeleccionado = nombre;
+
+
+  // Borrar notificaciones pendientes
+
+ const pendientes =
+  mensajesVistos[usuarioId] || 0;
+
+totalNoLeidos -= pendientes;
+
+if (totalNoLeidos < 0) {
+  totalNoLeidos = 0;
+}
+
+mensajesVistos[usuarioId] = 0;
+
+actualizarNotificacion(usuarioId);
+
+actualizarTituloPagina();
+
+  // Título
+
+  tituloChat.textContent = nombre;
+
+  if (cancelarEstado) {
+  cancelarEstado();
+  cancelarEstado = null;
+}
+
+const referenciaEstado = ref(
+  db,
+  "conversaciones/" + usuarioId + "/estado"
+);
+
+const referenciaAdminEscribiendo = ref(
+  db,
+  "conversaciones/" + usuarioId + "/adminEscribiendo"
+);
+  
+const referenciaEscribiendo = ref(
+  db,
+  "conversaciones/" + usuarioId + "/escribiendo"
+);
+
+let estadoActualCliente = null;
+
+
+// MOSTRAR ESTADO DEL CLIENTE
+
+function mostrarEstadoCliente() {
+
+  if (clienteEstaEscribiendo) {
+    estadoCliente.textContent = "✍️ Escribiendo...";
+    return;
+  }
+
+  const estado = estadoActualCliente;
+
+  if (!estado) {
+    estadoCliente.textContent = "";
+    return;
+  }
+
+  if (estado.enLinea === true) {
+    estadoCliente.textContent = "🟢 En línea";
+    return;
+  }
+
+  if (estado.ultimaConexion) {
+
+    const fecha =
+      new Date(estado.ultimaConexion);
+
+    const hoy =
+      new Date();
+
+    const esHoy =
+      fecha.toDateString() ===
+      hoy.toDateString();
+
+    if (esHoy) {
+
+      estadoCliente.textContent =
+        "Última vez hoy " +
+        fecha.toLocaleTimeString(
+          "es-AR",
+          {
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
+    } else {
+
+      estadoCliente.textContent =
+        "Última vez " +
+        fecha.toLocaleDateString(
+          "es-AR",
+          {
+            day: "2-digit",
+            month: "2-digit"
+          }
+        ) +
+        " " +
+        fecha.toLocaleTimeString(
+          "es-AR",
+          {
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
+    }
+
+  }
+
+}
+
+// ESCUCHAR SI ESTÁ ESCRIBIENDO
+
+if (cancelarEscribiendo) {
+  cancelarEscribiendo();
+  cancelarEscribiendo = null;
+}
+
+clienteEstaEscribiendo = false;
+
+cancelarEscribiendo = onValue(
+  referenciaEscribiendo,
+  (snapshot) => {
+
+    clienteEstaEscribiendo =
+      snapshot.val() === true;
+
+    mostrarEstadoCliente();
+
+  }
+);
+  
+// ESCUCHAR ESTADO EN LÍNEA
+
+cancelarEstado = onValue(
+  referenciaEstado,
+  (snapshot) => {
+
+    estadoActualCliente =
+      snapshot.val();
+
+    mostrarEstadoCliente();
+
+  }
+);
+  
+  // Habilitar campo
+
+ input.disabled = false;
+botonEnviar.disabled = false;
+botonArchivoAdmin.disabled = false;
+
+  input.focus();
+
+
+  // MARCAR CLIENTE ACTIVO
+
+  document
+    .querySelectorAll(".cliente")
+    .forEach(cliente => {
+
+      cliente.classList.remove("activo");
+
+      const id =
+        cliente.querySelector(".cliente-id");
+
+      if (
+        id &&
+        id.textContent === usuarioId
+      ) {
+
+        cliente.classList.add("activo");
+
+      }
+
+    });
+
+
+  // EN CELULAR IR AL CHAT
+
+  if (window.innerWidth <= 700) {
+
+    document
+      .querySelector(".chat")
+      .scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+  }
+
+
+  // LIMPIAR CHAT ANTERIOR
+
+  listaMensajes.innerHTML = "";
+
+
+  // CANCELAR LISTENER ANTERIOR
+
+  if (cancelarMensajes) {
+
+    cancelarMensajes();
+
+    cancelarMensajes = null;
+
+  }
+
+  // CARGAR MENSAJES
+
+cancelarMensajes =
+  onChildAdded(
+    query(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/mensajes"
+      ),
+      limitToLast(50)
+    ),
+    (snapshot) => {
+
+      const datos =
+  snapshot.val();
+
+if (!datos) return;
+
+mostrarMensaje(datos, snapshot.key);
+
+// MARCAR COMO LEÍDO SI ES MENSAJE DEL CLIENTE
+if (
+  datos.tipo === "cliente" &&
+  datos.leido !== true
+) {
+  set(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/mensajes/" +
+      snapshot.key +
+      "/leido"
+    ),
+    true
+  );
+}
+       }
+  );
+
+// CANCELAR LISTENER DE LEÍDOS DEL CHAT ANTERIOR
+if (cancelarLeidos) {
+  cancelarLeidos();
+  cancelarLeidos = null;
+}
+
+// ESCUCHAR CAMBIOS DE ✓ A ✓✓
+cancelarLeidos = onChildChanged(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioId +
+    "/mensajes"
+  ),
+  (snapshot) => {
+
+    const datos = snapshot.val();
+        
+    if (!datos || datos.tipo !== "admin") {
+      return;
+    }
+
+    const mensaje = document.querySelector(
+      '.mensaje[data-id="' + snapshot.key + '"]'
+    );
+
+    if (!mensaje) return;
+
+    const hora = mensaje.querySelector(".hora");
+
+    if (!hora || !datos.fecha) return;
+
+    const fecha = new Date(datos.fecha);
+
+    let textoHora =
+      fecha.toLocaleTimeString(
+        "es-AR",
+        {
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      );
+
+    if (datos.leido === true) {
+      textoHora += "  ✓✓";
+    } else {
+      textoHora += "  ✓";
+    }
+
+    hora.textContent = textoHora;
+  }
+);
+
+}
+  
+// ========================================
+// MOSTRAR MENSAJE
+// ========================================
+
+function mostrarMensaje(datos, mensajeId) {
+  const mensaje =
+    document.createElement("div");
+
+  mensaje.dataset.id = mensajeId;
+  
+  mensaje.classList.add("mensaje");
+
+
+  if (datos.tipo === "admin") {
+
+    mensaje.classList.add(
+      "admin-msg"
+    );
+
+  } else {
+
+    mensaje.classList.add(
+      "cliente-msg"
+    );
+
+  }
+
+
+  // NOMBRE
+
+  const nombre =
+    document.createElement("span");
+
+  nombre.classList.add("nombre");
+
+  if (datos.tipo === "admin") {
+
+    nombre.textContent =
+      "Administrador";
+
+  } else {
+
+    nombre.textContent =
+      datos.nombre ||
+      nombreSeleccionado;
+
+  }
+
+
+// TEXTO O ARCHIVO
+
+const texto = document.createElement("span");
+
+if (datos.archivo === true && datos.archivoUrl) {
+
+if (
+  datos.archivoTipo &&
+  datos.archivoTipo.startsWith("image/")
+) {
+
+  const imagen = document.createElement("img");
+
+  imagen.src = datos.archivoUrl;
+  imagen.alt = datos.archivoNombre || "Imagen";
+
+  imagen.style.maxWidth = "100%";
+  imagen.style.maxHeight = "300px";
+  imagen.style.borderRadius = "8px";
+  imagen.style.cursor = "pointer";
+  imagen.style.display = "block";
+
+  imagen.addEventListener("click", () => {
+    window.open(datos.archivoUrl, "_blank");
+  });
+
+  texto.appendChild(imagen);
+
+} else {
+
+  const enlace = document.createElement("a");
+
+  enlace.href = datos.archivoUrl;
+  enlace.target = "_blank";
+  enlace.rel = "noopener noreferrer";
+
+  enlace.textContent =
+    "📎 " + (datos.archivoNombre || "Abrir archivo");
+
+  enlace.style.color = "#075e54";
+  enlace.style.fontWeight = "bold";
+  enlace.style.textDecoration = "none";
+
+  texto.appendChild(enlace);
+}
+
+if (datos.archivoTamano) {
+
+  const tamano = document.createElement("span");
+
+  const mb = datos.archivoTamano / (1024 * 1024);
+
+  tamano.textContent =
+    mb >= 1
+      ? mb.toFixed(2) + " MB"
+      : (datos.archivoTamano / 1024).toFixed(1) + " KB";
+
+  tamano.style.display = "block";
+  tamano.style.fontSize = "11px";
+  tamano.style.color = "#777";
+  tamano.style.marginTop = "3px";
+
+  texto.appendChild(tamano);
+}
+  
+} else {
+
+  texto.textContent = datos.texto || "";
+
+}
+  
+  // HORA
+
+  const hora =
+    document.createElement("span");
+
+  hora.classList.add("hora");
+
+ if (datos.fecha) {
+
+  const fecha =
+    new Date(datos.fecha);
+
+  let textoHora =
+    fecha.toLocaleTimeString(
+      "es-AR",
+      {
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    );
+
+  // Mostrar ✓ / ✓✓ solamente
+  // en mensajes enviados por el administrador
+  if (datos.tipo === "admin") {
+
+    if (datos.leido === true) {
+      textoHora += "  ✓✓";
+    } else {
+      textoHora += "  ✓";
+    }
+
+  }
+
+  hora.textContent = textoHora;
+}
+
+// BOTÓN ELIMINAR MENSAJE DEL ADMINISTRADOR
+if (datos.tipo === "admin") {
+
+  const botonEliminar =
+    document.createElement("button");
+
+  botonEliminar.textContent = "🗑️";
+  botonEliminar.title = "Eliminar mensaje";
+
+  botonEliminar.style.border = "none";
+  botonEliminar.style.background = "transparent";
+  botonEliminar.style.cursor = "pointer";
+  botonEliminar.style.fontSize = "13px";
+  botonEliminar.style.marginLeft = "8px";
+
+botonEliminar.addEventListener("click", async (event) => {
+
+  event.stopPropagation();
+
+const usuarioIdEliminar = usuarioSeleccionado;
+  
+  const confirmar = confirm(
+    "¿Querés eliminar este mensaje?"
+  );
+
+  if (!confirmar) return;
+
+  try {
+
+await remove(
+  ref(
+    db,
+  "conversaciones/" +
+usuarioIdEliminar +
+"/mensajes/" +
+mensajeId
+  )
+);
+
+// BUSCAR EL NUEVO ÚLTIMO MENSAJE
+const snapshotUltimo = await get(
+  query(
+    ref(
+      db,
+     "conversaciones/" +
+usuarioIdEliminar +
+"/mensajes"
+    ),
+    orderByChild("fecha"),
+    limitToLast(1)
+  )
+);
+
+if (snapshotUltimo.exists()) {
+
+  let ultimoMensaje = null;
+
+  snapshotUltimo.forEach((snapshot) => {
+    ultimoMensaje = snapshot.val();
+  });
+
+  if (ultimoMensaje) {
+
+    let textoUltimo = "";
+
+    if (ultimoMensaje.archivo === true) {
+
+      textoUltimo =
+        ultimoMensaje.tipo === "admin"
+          ? "Vos: 📎 " +
+            (ultimoMensaje.archivoNombre || "Archivo")
+          : "📎 " +
+            (ultimoMensaje.archivoNombre || "Archivo");
+
+    } else {
+
+      textoUltimo =
+        ultimoMensaje.tipo === "admin"
+          ? "Vos: " + (ultimoMensaje.texto || "")
+          : (ultimoMensaje.texto || "");
+
+    }
+
+    await set(
+      ref(
+        db,
+       "conversaciones/" +
+usuarioIdEliminar +
+"/ultimoTexto"
+      ),
+      textoUltimo
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+    usuarioIdEliminar +
+        "/ultimoMensaje"
+      ),
+      ultimoMensaje.fecha || Date.now()
+    );
+
+  }
+
+} else {
+
+  await set(
+    ref(
+      db,
+      "conversaciones/" +
+usuarioIdEliminar +    
+      "/ultimoTexto"
+    ),
+    "Sin mensajes"
+  );
+
+  await set(
+    ref(
+      db,
+      "conversaciones/" +
+usuarioIdEliminar +
+      "/ultimoMensaje"
+    ),
+    0
+  );
+
+}
+
+mensaje.remove();
+    
+  } catch (error) {
+
+    console.error(
+      "Error al eliminar mensaje:",
+      error
+    );
+
+    alert("No se pudo eliminar el mensaje.");
+
+  }
+
+});
+  
+  mensaje.appendChild(botonEliminar);
+}
+  
+  mensaje.appendChild(nombre);
+  mensaje.appendChild(texto);
+  mensaje.appendChild(hora);
+
+  listaMensajes.appendChild(mensaje);
+
+
+  // BAJAR AL ÚLTIMO MENSAJE
+
+  listaMensajes.scrollTop =
+    listaMensajes.scrollHeight;
+
+}
+
+async function enviarArchivoAdmin() {
+
+  const archivo = archivoAdmin.files[0];
+
+  if (!archivo || !usuarioSeleccionado) return;
+
+  if (archivo.size > 10 * 1024 * 1024) {
+    alert("El archivo supera los 10 MB.");
+    archivoAdmin.value = "";
+    return;
+  }
+
+  try {
+
+    const formData = new FormData();
+
+    formData.append("file", archivo);
+    formData.append("upload_preset", "chat_archivos");
+    
+    const respuesta = await fetch(
+      "https://api.cloudinary.com/v1_1/qqmjx1vh/auto/upload",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(
+        resultado?.error?.message ||
+        "No se pudo subir el archivo."
+      );
+    }
+
+    const url = resultado.secure_url;
+
+    await push(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioSeleccionado +
+        "/mensajes"
+      ),
+      {
+        tipo: "admin",
+        nombre: "Administrador",
+        fecha: Date.now(),
+        leido: false,
+        archivo: true,
+        archivoNombre: archivo.name,
+        archivoTipo: archivo.type,
+        archivoTamano: archivo.size,
+        archivoUrl: url,
+        texto: ""
+      }
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioSeleccionado +
+        "/ultimoMensaje"
+      ),
+      Date.now()
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioSeleccionado +
+        "/ultimoTexto"
+      ),
+      "Vos: 📎 " + archivo.name
+    );
+
+    archivoAdmin.value = "";
+
+  } catch (error) {
+
+    console.error("ERROR AL SUBIR ARCHIVO:", error);
+
+    alert(
+      "Error al subir archivo: " +
+      error.message
+    );
+
+    archivoAdmin.value = "";
+  }
+}
+  
+// ========================================
+// ENVIAR MENSAJE
+// ========================================
+
+// ========================================
+// ENVIAR NOTIFICACIÓN PUSH AL CLIENTE
+// ========================================
+
+async function enviarNotificacionPush(usuarioId, texto) {
+
+  try {
+
+    const tokenSnapshot = await new Promise((resolve) => {
+
+      onValue(
+        ref(
+          db,
+          "conversaciones/" +
+          usuarioId +
+          "/fcmToken"
+        ),
+        resolve,
+        { onlyOnce: true }
+      );
+
+    });
+
+    const token = tokenSnapshot.val();
+
+    if (!token) {
+      console.log(
+        "El cliente no tiene token FCM"
+      );
+      return;
+    }
+
+const usuarioAdmin = auth.currentUser;
+
+if (!usuarioAdmin) {
+  console.error("Administrador no autenticado");
+  return;
+}
+
+const idToken = await usuarioAdmin.getIdToken();
+    
+    const respuesta = await fetch(
+      "https://canbrelu-notificaciones.memax1xamem.workers.dev/",
+      {
+        method: "POST",
+
+       headers: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer " + idToken
+},
+
+        body: JSON.stringify({
+  token: token,
+  titulo: "Red Canbrelú Chat",
+  mensaje: texto,
+  usuarioId: usuarioId
+})
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    console.log(
+      "NOTIFICACIÓN PUSH:",
+      resultado
+    );
+
+  } catch (error) {
+
+    console.error(
+      "ERROR NOTIFICACIÓN PUSH:",
+      error
+    );
+
+  }
+}
+  
+async function enviarMensaje() {
+
+  if (!usuarioSeleccionado) {
+    return;
+  }
+
+  const texto =
+    input.value.trim();
+
+  if (texto === "") {
+    return;
+  }
+
+  input.value = "";
+set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioSeleccionado +
+    "/adminEscribiendo"
+  ),
+  false
+);
+  input.focus();
+
+  try {
+
+    await push(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioSeleccionado +
+        "/mensajes"
+      ),
+      {
+        texto: texto,
+        fecha: Date.now(),
+        nombre: "Administrador",
+        tipo: "admin",
+        leido: false
+      }
+    );
+    await set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioSeleccionado +
+    "/ultimoMensaje"
+  ),
+  Date.now()
+);
+
+  await set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioSeleccionado +
+    "/ultimoTexto"
+  ),
+  "Vos: " + texto
+);
+ 
+ // await enviarNotificacionPush(
+ //   usuarioSeleccionado,
+ //   texto
+ // );
+    
+  } catch (error) {
+
+    console.error(
+      "Error al enviar:",
+      error
+    );
+
+    alert(
+      "No se pudo enviar el mensaje."
+    );
+
+  }
+
+}
+
+// ========================================
+// ADMIN ESTÁ ESCRIBIENDO
+// ========================================
+
+let temporizadorEscribiendoAdmin;
+
+input.addEventListener("input", () => {
+
+  if (!usuarioSeleccionado) return;
+
+  const adminEscribiendoRef = ref(
+    db,
+    "conversaciones/" +
+    usuarioSeleccionado +
+    "/adminEscribiendo"
+  );
+
+  set(adminEscribiendoRef, true);
+
+  clearTimeout(temporizadorEscribiendoAdmin);
+
+  temporizadorEscribiendoAdmin = setTimeout(() => {
+
+    set(adminEscribiendoRef, false);
+
+  }, 1500);
+
+});
+
+archivoAdmin.addEventListener(
+  "change",
+  enviarArchivoAdmin
+);
+  
+botonArchivoAdmin.addEventListener("click", () => {
+  archivoAdmin.click();
+});
+  
+// ========================================
+// BOTÓN ENVIAR
+// ========================================
+
+botonEnviar.addEventListener(
+  "click",
+  enviarMensaje
+);
+
+
+// ========================================
+// ENVIAR CON ENTER
+// ========================================
+
+input.addEventListener(
+  "keydown",
+  (event) => {
+
+    if (event.key === "Enter") {
+
+      event.preventDefault();
+
+      enviarMensaje();
+
+    }
+
+  }
+);
+
+// ========================================
+// FILTROS DE CLIENTES
+// ========================================
+
+filtroTodos.addEventListener("click", () => {
+
+  filtroTodos.classList.add("activo");
+  filtroPendientes.classList.remove("activo");
+
+  document
+    .querySelectorAll(".cliente")
+    .forEach(cliente => {
+      cliente.style.display = "";
+    });
+
+});
+
+filtroPendientes.addEventListener("click", () => {
+
+  filtroPendientes.classList.add("activo");
+  filtroTodos.classList.remove("activo");
+
+  document
+    .querySelectorAll(".cliente")
+    .forEach(cliente => {
+
+      if (cliente.classList.contains("espera-respuesta")) {
+        cliente.style.display = "";
+      } else {
+        cliente.style.display = "none";
+      }
+
+    });
+
+});
+  
+// ========================================
+// BUSCAR CLIENTES
+// ========================================
+
+buscarCliente.addEventListener("input", () => {
+
+  const busqueda =
+    buscarCliente.value
+      .trim()
+      .toLowerCase();
+
+  document
+    .querySelectorAll(".cliente")
+    .forEach(cliente => {
+
+      const nombre =
+        cliente
+          .querySelector(".cliente-nombre")
+          ?.textContent
+          .toLowerCase() || "";
+
+      const id =
+        cliente
+          .querySelector(".cliente-id")
+          ?.textContent
+          .toLowerCase() || "";
+
+      if (
+        nombre.includes(busqueda) ||
+        id.includes(busqueda)
+      ) {
+
+        cliente.style.display = "";
+
+      } else {
+
+        cliente.style.display = "none";
+
+      }
+
+    });
+
+});
+
+  // ========================================
+// ABRIR CHAT DESDE NOTIFICACIÓN
+// SIN RECARGAR EL ADMINISTRADOR
+// ========================================
+
+if ("serviceWorker" in navigator) {
+
+  navigator.serviceWorker.addEventListener(
+    "message",
+    (event) => {
+
+      if (
+        event.data?.tipo !== "ABRIR_CHAT" ||
+        !event.data?.usuarioId
+      ) {
+        return;
+      }
+
+      const usuarioId = event.data.usuarioId;
+
+      const cliente = [...document.querySelectorAll(".cliente")]
+        .find(elemento => {
+
+          const id =
+            elemento.querySelector(".cliente-id");
+
+          return (
+            id &&
+            id.textContent === usuarioId
+          );
+        });
+
+      if (!cliente) {
+        console.log(
+          "No se encontró el cliente:",
+          usuarioId
+        );
+        return;
+      }
+
+      const nombre =
+        cliente.querySelector(".cliente-nombre")
+          ?.textContent || "Usuario";
+
+      abrirConversacion(
+        usuarioId,
+        nombre
+      );
+
+    }
+  );
+
+}
+
+// ========================================
+// GUARDAR FICHA DEL CLIENTE
+// ========================================
+
+document
+  .getElementById("guardarFicha")
+  .addEventListener("click", async () => {
+
+    const modalFicha =
+      document.getElementById("modalFicha");
+
+    const usuarioId =
+      modalFicha.dataset.usuarioId;
+
+    if (!usuarioId) return;
+
+    const nombre =
+      document
+        .getElementById("fichaNombre")
+        .value
+        .trim();
+
+    const telefono =
+      document
+        .getElementById("fichaTelefono")
+        .value
+        .trim();
+
+    const notas =
+      document
+        .getElementById("fichaNotas")
+        .value
+        .trim();
+
+    if (nombre === "") {
+      alert("El nombre no puede quedar vacío.");
+      return;
+    }
+
+    try {
+
+      await Promise.all([
+
+        set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioId +
+            "/info/nombre"
+          ),
+          nombre
+        ),
+
+        set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioId +
+            "/info/telefono"
+          ),
+          telefono
+        ),
+
+        set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioId +
+            "/info/notas"
+          ),
+          notas
+        )
+
+      ]);
+
+      modalFicha.classList.remove("activa");
+
+    } catch (error) {
+
+      console.error(
+        "Error al guardar ficha:",
+        error
+      );
+
+      alert("No se pudo guardar la ficha.");
+
+    }
+
+  });
+
+// ========================================
+// CERRAR FICHA DEL CLIENTE
+// ========================================
+
+document
+  .getElementById("cerrarFicha")
+  .addEventListener("click", () => {
+
+    document
+      .getElementById("modalFicha")
+      .classList.remove("activa");
+
+  });
+
+  document
+  .getElementById("modalFicha")
+  .addEventListener("click", (event) => {
+
+    if (event.target.id === "modalFicha") {
+      event.currentTarget.classList.remove("activa");
+    }
+
+  });
+  
+</script>
+
+</body>
+</html>
