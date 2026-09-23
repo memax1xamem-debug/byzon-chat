@@ -2211,7 +2211,7 @@ if (!usuarioAdmin) {
 const idToken = await usuarioAdmin.getIdToken();
     
     const respuesta = await fetch(
-      "https://canbrelu-notificaciones.memax1xamem.workers.dev/",
+      https://byzon-notificaciones.memax1xamem.workers.dev/
       {
         method: "POST",
 
@@ -2222,7 +2222,7 @@ const idToken = await usuarioAdmin.getIdToken();
 
         body: JSON.stringify({
   token: token,
-  titulo: "Red Canbrelú Chat",
+  titulo: "Byzon Chat",
   mensaje: texto,
   usuarioId: usuarioId
 })
@@ -2308,10 +2308,10 @@ set(
   "Vos: " + texto
 );
  
- // await enviarNotificacionPush(
- //   usuarioSeleccionado,
- //   texto
- // );
+await enviarNotificacionPush(
+  usuarioSeleccionado,
+  texto
+);
     
   } catch (error) {
 
