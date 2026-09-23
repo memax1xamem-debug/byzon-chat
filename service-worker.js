@@ -119,7 +119,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((nombres) => {
       return Promise.all(
         nombres
-          .filter((nombre) => nombre !== CACHE_NAME)
+          .filter((nombre) => nombre.startsWith("byzon-chat-") && nombre !== CACHE_NAME)
           .map((nombre) => caches.delete(nombre))
       );
     })
