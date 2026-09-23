@@ -1,1 +1,1148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red Canbrelú Chat</title>
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#075e54">
+
+<!-- Para iPhone/iPad -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Canbrelú Chat">
+<link rel="apple-touch-icon" href="icon-192.png">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f2f2f2;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .chat {
+      width: 100%;
+      max-width: 500px;
+      height: 100vh;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 15px rgba(0,0,0,0.15);
+    }
+
+    .header {
+      background: #075e54;
+      color: white;
+      padding: 18px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .subtitulo {
+      font-size: 13px;
+      font-weight: normal;
+      margin-top: 4px;
+    }
+
+    .mensajes {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background: #e5ddd5;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mensaje {
+      max-width: 80%;
+      padding: 9px 12px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      font-size: 15px;
+      word-wrap: break-word;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .recibido {
+      background: white;
+      margin-right: auto;
+    }
+
+    .enviado {
+      background: #dcf8c6;
+      margin-left: auto;
+    }
+
+    .texto {
+      display: block;
+    }
+
+    .hora {
+      display: block;
+      text-align: right;
+      font-size: 10px;
+      color: #777;
+      margin-top: 5px;
+    }
+
+    .entrada {
+      display: flex;
+      padding: 10px;
+      background: #f0f0f0;
+      gap: 8px;
+    }
+
+    .entrada input {
+      flex: 1;
+      padding: 13px;
+      border: none;
+      border-radius: 25px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .entrada button {
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: #075e54;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+.usuario {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: #ffffff;
+  border-bottom: 1px solid #ddd;
+}
+
+.usuario input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+}
+
+.usuario button {
+  border: none;
+  background: #075e54;
+  color: white;
+  padding: 0 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.nombre {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  color: #075e54;
+  margin-bottom: 4px;
+}
+    .entrada button:hover {
+      background: #064c44;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="chat">
+
+  <div class="header">
+    Red Canbrelú Chat
+<div class="subtitulo" id="estadoAdmin">Mensajería directa</div>  </div>
+<button id="instalarApp" style="
+  display:none;
+  margin:8px 10px;
+  padding:11px;
+  border:none;
+  border-radius:10px;
+  background:#075e54;
+  color:white;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+">
+  📲 Instalar Red Canbrelú Chat
+</button>
+  <button id="activarNotificaciones" style="
+  display:block;
+  margin:8px 10px;
+  padding:11px;
+  border:none;
+  border-radius:10px;
+  background:#075e54;
+  color:white;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+">
+  🔔 Activar notificaciones
+</button>
+  <div class="usuario">
+  <input
+    type="text"
+    id="nombreUsuario"
+    placeholder="Tu nombre..."
+    maxlength="25"
+  >
+  <button id="guardarNombre">Guardar</button>
+</div>
+  <div class="mensajes" id="mensajes"></div>
+
+ <div class="entrada">
+
+  <input
+    type="file"
+    id="archivo"
+    hidden
+  >
+
+  <button
+    type="button"
+    id="botonArchivo"
+    title="Adjuntar archivo"
+  >
+    📎
+  </button>
+
+  <input
+    type="text"
+    id="mensaje"
+    placeholder="Escribí un mensaje..."
+    autocomplete="off"
+  >
+
+  <button id="botonEnviar">➤</button>
+
+</div>
+
+</div>
+
+<script type="module">
+  
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  push,
+  set,
+  onChildAdded,
+  onChildChanged,
+  onValue,
+  onDisconnect,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+  import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
+
+import {
+  getMessaging,
+  getToken,
+  onMessage
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-messaging.js";
+  
+  const firebaseConfig = {
+    apiKey: "AIzaSyCKh_AHfvDSlAMxs1Kl-hvQse6Dj1g6sBo",
+    authDomain: "red-canbrelu-chat.firebaseapp.com",
+    databaseURL: "https://red-canbrelu-chat-default-rtdb.firebaseio.com/",
+    projectId: "red-canbrelu-chat",
+    storageBucket: "red-canbrelu-chat.firebasestorage.app",
+    messagingSenderId: "733334279827",
+    appId: "1:733334279827:web:7fdec02211ae5818ae9f66",
+    measurementId: "G-ZXGC8CCYK3"
+  };
+
+import {
+  getAuth,
+  signInAnonymously,
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+  
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+  const auth = getAuth(app);
+
+// Esperar a que Firebase autentique al cliente antes de crear referencias,
+// registrar listeners o permitir operaciones sobre su conversación.
+try {
+  await signInAnonymously(auth);
+} catch (error) {
+  console.error("No se pudo autenticar al cliente:", error);
+  alert("No se pudo conectar al chat. Volvé a intentar más tarde.");
+  throw error;
+}
+
+const storage = getStorage(app);
+const messaging = getMessaging(app);
+const VAPID_KEY = "BE62HdNtMolDz0NucI6HD62zS9aeFvVGnNDG8m-SQl04znLguwkPnqfMTNK5-90kqktNwYZbSQo9AmV2Q3hH9K8"
+  
+  const input = document.getElementById("mensaje");
+  const lista = document.getElementById("mensajes");
+  const boton = document.getElementById("botonEnviar");
+const inputNombre = document.getElementById("nombreUsuario");
+const guardarNombre = document.getElementById("guardarNombre");
+
+  const archivoInput =
+  document.getElementById("archivo");
+
+const botonArchivo =
+  document.getElementById("botonArchivo");
+const botonNotificaciones =
+  document.getElementById("activarNotificaciones");
+  
+let nombreUsuario = localStorage.getItem("nombreUsuario") || "";
+
+inputNombre.value = nombreUsuario;
+
+// El historial anterior permanece en Firebase para el administrador.
+// No reutilizar el identificador antiguo de localStorage para acceder al chat.
+const usuarioIdAnterior = localStorage.getItem("usuarioId");
+const usuarioId = auth.currentUser.uid;
+
+// ========================================
+// ABRIR CHAT DESDE UNA NOTIFICACIÓN
+// ========================================
+
+const parametrosURL = new URLSearchParams(window.location.search);
+const chatNotificacion = parametrosURL.get("chat");
+
+if (chatNotificacion) {
+
+  console.log(
+    "Chat abierto desde notificación:",
+    chatNotificacion
+  );
+
+  if (chatNotificacion === usuarioId) {
+    console.log(
+      "La notificación corresponde a este usuario"
+    );
+  }
+
+  // Limpiar ?chat=... de la dirección
+  window.history.replaceState(
+    {},
+    document.title,
+    window.location.pathname
+  );
+}
+  
+async function comprobarNotificaciones() {
+
+  if (!("Notification" in window)) {
+    botonNotificaciones.textContent =
+      "🔕 Notificaciones no disponibles";
+    botonNotificaciones.disabled = true;
+    return;
+  }
+
+  if (Notification.permission === "granted") {
+
+    botonNotificaciones.textContent =
+      "🔔 Notificaciones activadas";
+
+    botonNotificaciones.disabled = true;
+
+    try {
+
+      const registroSW =
+        await navigator.serviceWorker.ready;
+
+      const token = await getToken(messaging, {
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: registroSW
+      });
+
+      if (token) {
+
+        await set(
+          ref(
+            db,
+            "conversaciones/" +
+            usuarioId +
+            "/fcmToken"
+          ),
+          token
+        );
+
+        console.log("TOKEN FCM ACTUALIZADO");
+      }
+
+    } catch (error) {
+      console.error(
+        "Error comprobando notificaciones:",
+        error
+      );
+    }
+
+    return;
+  }
+
+  if (Notification.permission === "denied") {
+
+    botonNotificaciones.textContent =
+      "🔕 Notificaciones bloqueadas";
+
+    botonNotificaciones.disabled = true;
+    return;
+  }
+
+  botonNotificaciones.textContent =
+    "🔔 Activar notificaciones";
+
+  botonNotificaciones.disabled = false;
+}
+
+comprobarNotificaciones();
+  
+botonNotificaciones.addEventListener("click", async () => {
+
+  try {
+
+    const permiso = await Notification.requestPermission();
+
+    if (permiso !== "granted") {
+      alert("No se habilitaron las notificaciones.");
+      return;
+    }
+
+    const registroSW =
+      await navigator.serviceWorker.ready;
+
+    const token = await getToken(messaging, {
+      vapidKey: VAPID_KEY,
+      serviceWorkerRegistration: registroSW
+    });
+
+    if (!token) {
+      alert("No se pudo obtener el token de notificaciones.");
+      return;
+    }
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/fcmToken"
+      ),
+      token
+    );
+
+    botonNotificaciones.textContent =
+      "🔔 Notificaciones activadas";
+
+    botonNotificaciones.disabled = true;
+
+    console.log("TOKEN FCM GUARDADO");
+
+  } catch (error) {
+
+    console.error(
+      "ERROR NOTIFICACIONES:",
+      error
+    );
+
+    alert(
+      "Error al activar notificaciones: " +
+      error.message
+    );
+  }
+
+});
+  
+  guardarNombre.addEventListener("click", async () => {
+
+  const nombre = inputNombre.value.trim();
+
+  if (nombre === "") {
+    alert("Escribí tu nombre.");
+    return;
+  }
+
+  nombreUsuario = nombre;
+
+  // Guardar primero en el navegador
+  localStorage.setItem("nombreUsuario", nombreUsuario);
+
+  // Mostrar inmediatamente que quedó guardado
+  inputNombre.value = nombreUsuario;
+  inputNombre.disabled = true;
+  guardarNombre.textContent = "✓";
+
+  console.log("Nombre guardado:", nombreUsuario);
+  
+
+  try {
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/info"
+      ),
+      {
+        nombre: nombreUsuario,
+        usuarioId: usuarioId,
+        ultimaActividad: Date.now()
+      }
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/ultimoMensaje"
+      ),
+      Date.now()
+    );
+
+    console.log("Nombre guardado correctamente en Firebase");
+
+  } catch (error) {
+
+    console.error("ERROR AL GUARDAR NOMBRE:", error);
+
+    alert(
+      "El nombre quedó guardado en el navegador, pero Firebase dio un error: " +
+      error.message
+    );
+  }
+
+});
+
+if (nombreUsuario !== "") {
+  inputNombre.disabled = true;
+  guardarNombre.textContent = "✓";
+  // El nombre guardado en el navegador debe registrarse también en el chat nuevo.
+  set(ref(db, "conversaciones/" + usuarioId + "/info"), {
+    nombre: nombreUsuario,
+    usuarioId: usuarioId,
+    ultimaActividad: Date.now()
+  }).catch((error) => console.error("No se pudo registrar el nombre:", error));
+}
+
+  // ========================================
+// ESTADO EN LÍNEA / DESCONECTADO
+// ========================================
+
+const estadoRef = ref(
+  db,
+  "conversaciones/" + usuarioId + "/estado"
+);
+
+const conectadoRef = ref(db, ".info/connected");
+
+  const escribiendoRef = ref(
+  db,
+  "conversaciones/" + usuarioId + "/escribiendo"
+);
+const adminEscribiendoRef = ref(
+  db,
+  "conversaciones/" + usuarioId + "/adminEscribiendo"
+);
+
+const estadoAdmin =
+  document.getElementById("estadoAdmin");
+
+onValue(
+  adminEscribiendoRef,
+  (snapshot) => {
+
+    if (snapshot.val() === true) {
+
+      estadoAdmin.textContent =
+        "✍️ Administrador está escribiendo...";
+
+    } else {
+
+      estadoAdmin.textContent =
+        "Mensajería directa";
+
+    }
+
+  }
+);
+  
+onValue(conectadoRef, (snapshot) => {
+
+  if (snapshot.val() === false) {
+    return;
+  }
+
+  onDisconnect(estadoRef).set({
+    enLinea: false,
+    ultimaConexion: serverTimestamp()
+  });
+
+  set(estadoRef, {
+    enLinea: true,
+    ultimaConexion: serverTimestamp()
+  });
+
+});
+
+  botonArchivo.addEventListener("click", () => {
+  archivoInput.click();
+});
+
+async function enviarArchivo() {
+
+  const archivo = archivoInput.files[0];
+
+  if (!archivo) return;
+
+  if (archivo.size > 10 * 1024 * 1024) {
+    alert("El archivo supera los 10 MB.");
+    archivoInput.value = "";
+    return;
+  }
+
+  if (nombreUsuario === "") {
+    alert("Primero escribí tu nombre y guardalo.");
+    archivoInput.value = "";
+    return;
+  }
+
+  try {
+
+    const formData = new FormData();
+
+    formData.append("file", archivo);
+    formData.append("upload_preset", "chat_archivos");
+
+  const respuesta = await fetch(
+  "https://api.cloudinary.com/v1_1/qqmjx1vh/auto/upload",
+  {
+    method: "POST",
+    body: formData
+  }
+);
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(
+        resultado?.error?.message ||
+        "No se pudo subir el archivo."
+      );
+    }
+
+    const url = resultado.secure_url;
+
+    await push(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/mensajes"
+      ),
+      {
+        tipo: "cliente",
+        nombre: nombreUsuario,
+        usuarioId: usuarioId,
+        fecha: Date.now(),
+        leido: false,
+
+        archivo: true,
+        archivoNombre: archivo.name,
+        archivoTipo: archivo.type,
+        archivoTamano: archivo.size,
+        archivoUrl: url,
+
+        texto: ""
+      }
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/ultimoMensaje"
+      ),
+      Date.now()
+    );
+
+    await set(
+      ref(
+        db,
+        "conversaciones/" +
+        usuarioId +
+        "/ultimoTexto"
+      ),
+      "📎 " + archivo.name
+    );
+
+    archivoInput.value = "";
+
+    console.log("ARCHIVO ENVIADO:", url);
+
+  } catch (error) {
+
+    console.error("ERROR AL SUBIR ARCHIVO:", error);
+
+    alert(
+      "Error al subir archivo: " +
+      error.message
+    );
+
+    archivoInput.value = "";
+  }
+} // CIERRA enviarArchivo()
+  
+archivoInput.addEventListener(
+  "change",
+  enviarArchivo
+);
+  
+async function enviarMensaje() {
+
+  const texto = input.value.trim();
+
+  if (texto === "") return;
+
+  if (nombreUsuario === "") {
+    alert("Primero escribí tu nombre y guardalo.");
+    return;
+  }
+
+  try {
+
+    console.log("1 - Empezando envío");
+
+    const mensajesRef = ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/mensajes"
+    );
+
+    await push(mensajesRef, {
+      texto: texto,
+      fecha: Date.now(),
+      usuarioId: usuarioId,
+      nombre: nombreUsuario,
+      tipo: "cliente",
+      leido: false
+    });
+
+await set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioId +
+    "/ultimoMensaje"
+  ),
+  Date.now()
+);
+
+await set(
+  ref(
+    db,
+    "conversaciones/" +
+    usuarioId +
+    "/ultimoTexto"
+  ),
+  texto
+);
+    
+    console.log("2 - MENSAJE ENVIADO");
+
+    input.value = "";
+    input.focus();
+
+  } catch (error) {
+
+    console.error("ERROR AL ENVIAR:", error);
+
+    alert(
+      "Error al enviar mensaje: " +
+      error.message
+    );
+  }
+}
+
+// Botón enviar
+boton.addEventListener("click", enviarMensaje);
+
+// Enviar apretando Enter
+let tiempoEscribiendo;
+
+input.addEventListener("input", () => {
+
+  // Avisar que está escribiendo
+  set(escribiendoRef, true);
+
+  // Reiniciar temporizador
+  clearTimeout(tiempoEscribiendo);
+
+  // Si deja de escribir durante 1 segundo,
+  // quitar el indicador.
+  tiempoEscribiendo = setTimeout(() => {
+    set(escribiendoRef, false);
+  }, 1000);
+
+});
+
+input.addEventListener("keydown", (event) => {
+
+  if (event.key === "Enter") {
+
+    event.preventDefault();
+
+    set(escribiendoRef, false);
+
+    enviarMensaje();
+
+  }
+
+});
+
+// Escuchar mensajes
+onChildAdded(
+  ref(db, "conversaciones/" + usuarioId + "/mensajes"),
+  (snapshot) => {
+  const datos = snapshot.val();
+
+  const mensaje = document.createElement("div");
+  mensaje.dataset.id = snapshot.key;
+  mensaje.classList.add("mensaje");
+
+  if (datos.tipo === "cliente") {
+  mensaje.classList.add("enviado");
+} else {
+  mensaje.classList.add("recibido");
+}
+
+if (datos.tipo === "admin") {
+  const nombre = document.createElement("span");
+  nombre.classList.add("nombre");
+  nombre.textContent = "Administrador";
+
+  mensaje.appendChild(nombre);
+}
+
+ if (datos.archivo === true && datos.archivoUrl) {
+
+   if (
+  datos.archivoTipo &&
+  datos.archivoTipo.startsWith("image/")
+) {
+
+  const imagen = document.createElement("img");
+
+  imagen.src = datos.archivoUrl;
+  imagen.alt = datos.archivoNombre || "Imagen";
+
+  imagen.style.maxWidth = "100%";
+  imagen.style.maxHeight = "300px";
+  imagen.style.borderRadius = "8px";
+  imagen.style.cursor = "pointer";
+  imagen.style.display = "block";
+
+  imagen.addEventListener("click", () => {
+    window.open(datos.archivoUrl, "_blank");
+  });
+
+  mensaje.appendChild(imagen);
+
+} else {
+
+  const enlace = document.createElement("a");
+
+  enlace.href = datos.archivoUrl;
+  enlace.target = "_blank";
+  enlace.rel = "noopener noreferrer";
+
+  enlace.textContent =
+    "📎 " + (datos.archivoNombre || "Abrir archivo");
+
+  enlace.style.display = "block";
+  enlace.style.marginTop = "4px";
+  enlace.style.color = "#075e54";
+  enlace.style.fontWeight = "bold";
+  enlace.style.textDecoration = "none";
+
+  mensaje.appendChild(enlace);
+}
+
+if (datos.archivoTamano) {
+
+  const tamano = document.createElement("span");
+
+  const mb = datos.archivoTamano / (1024 * 1024);
+
+  tamano.textContent =
+    mb >= 1
+      ? mb.toFixed(2) + " MB"
+      : (datos.archivoTamano / 1024).toFixed(1) + " KB";
+
+  tamano.style.display = "block";
+  tamano.style.fontSize = "11px";
+  tamano.style.color = "#777";
+  tamano.style.marginTop = "3px";
+
+  mensaje.appendChild(tamano);
+}
+   
+} else {
+
+  const texto = document.createElement("span");
+  texto.classList.add("texto");
+
+  const contenido = datos.texto || "";
+
+  // Detectar enlaces http:// o https://
+  const partes = contenido.split(/(https?:\/\/[^\s]+)/g);
+
+  partes.forEach((parte) => {
+
+    if (/^https?:\/\/[^\s]+$/.test(parte)) {
+
+      const enlace = document.createElement("a");
+
+      enlace.href = parte;
+      enlace.target = "_blank";
+      enlace.rel = "noopener noreferrer";
+      enlace.textContent = parte;
+
+      enlace.style.color = "#0066cc";
+      enlace.style.textDecoration = "underline";
+      enlace.style.wordBreak = "break-all";
+
+      texto.appendChild(enlace);
+
+    } else {
+
+      texto.appendChild(
+        document.createTextNode(parte)
+      );
+
+    }
+
+  });
+
+  mensaje.appendChild(texto);
+
+}
+
+  const hora = document.createElement("span");
+  hora.classList.add("hora");
+
+if (datos.fecha) {
+
+  const fecha = new Date(datos.fecha);
+
+  let textoHora = fecha.toLocaleTimeString("es-AR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  // Mostrar estado solamente en mensajes enviados por el cliente
+  if (datos.tipo === "cliente") {
+
+    if (datos.leido === true) {
+      textoHora += "  ✓✓";
+    } else {
+      textoHora += "  ✓";
+    }
+
+  }
+
+  hora.textContent = textoHora;
+}
+
+  mensaje.appendChild(hora);
+
+   lista.appendChild(mensaje);
+    
+// MARCAR MENSAJE DEL ADMIN COMO LEÍDO
+if (
+  datos.tipo === "admin" &&
+  datos.leido !== true
+) {
+  set(
+    ref(
+      db,
+      "conversaciones/" +
+      usuarioId +
+      "/mensajes/" +
+      snapshot.key +
+      "/leido"
+    ),
+    true
+  );
+}
+    
+  lista.scrollTop = lista.scrollHeight;
+});
+
+  // ========================================
+// ACTUALIZAR ESTADO LEÍDO EN TIEMPO REAL
+// ========================================
+
+onChildChanged(
+  ref(db, "conversaciones/" + usuarioId + "/mensajes"),
+  (snapshot) => {
+
+    const datos = snapshot.val();
+
+    if (!datos || datos.tipo !== "cliente") {
+      return;
+    }
+
+    const mensaje = document.querySelector(
+      '.mensaje[data-id="' + snapshot.key + '"]'
+    );
+
+    if (!mensaje) return;
+
+    const hora = mensaje.querySelector(".hora");
+
+    if (!hora || !datos.fecha) return;
+
+    const fecha = new Date(datos.fecha);
+
+    let textoHora = fecha.toLocaleTimeString("es-AR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    if (datos.leido === true) {
+      textoHora += "  ✓✓";
+    } else {
+      textoHora += "  ✓";
+    }
+
+    hora.textContent = textoHora;
+
+  }
+);
+
+</script>
+
+  <script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("./service-worker.js")
+        .then(() => {
+          console.log("Service Worker registrado correctamente");
+        })
+        .catch((error) => {
+          console.error("Error al registrar Service Worker:", error);
+        });
+    });
+  }
+let eventoInstalacion;
+
+const botonInstalar = document.getElementById("instalarApp");
+
+const appYaInstalada =
+  window.matchMedia("(display-mode: standalone)").matches ||
+  window.navigator.standalone === true;
+
+if (appYaInstalada) {
+  botonInstalar.style.display = "none";
+}
+    
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+
+  eventoInstalacion = event;
+
+  if (!appYaInstalada) {
+    botonInstalar.style.display = "block";
+  }
+});
+    
+botonInstalar.addEventListener("click", async () => {
+
+  if (eventoInstalacion) {
+
+    eventoInstalacion.prompt();
+
+    const resultado = await eventoInstalacion.userChoice;
+
+    if (resultado.outcome === "accepted") {
+      botonInstalar.style.display = "none";
+    }
+
+    eventoInstalacion = null;
+
+  } else {
+
+    alert(
+      "Para instalar Red Canbrelú Chat:\n\n" +
+      "1. Tocá los tres puntos ⋮ de Chrome.\n" +
+      "2. Elegí «Instalar aplicación» o «Agregar a pantalla principal».\n" +
+      "3. Confirmá la instalación."
+    );
+
+  }
+
+});
+
+    // ========================================
+// INSTALACIÓN EN IPHONE / IPAD
+// ========================================
+
+const esIOS =
+  /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+
+const estaInstalada =
+  window.matchMedia("(display-mode: standalone)").matches ||
+  window.navigator.standalone === true;
+
+if (esIOS && !estaInstalada) {
+
+  botonInstalar.style.display = "block";
+
+  botonInstalar.addEventListener("click", () => {
+
+    if (!eventoInstalacion) {
+      alert(
+        "Para instalar Red Canbrelú Chat en tu iPhone:\n\n" +
+        "1. Tocá el botón Compartir de Safari.\n" +
+        "2. Elegí «Agregar a pantalla de inicio».\n" +
+        "3. Tocá «Agregar»."
+      );
+    }
+
+  });
+
+}
+
+window.addEventListener("appinstalled", () => {
+  botonInstalar.style.display = "none";
+  eventoInstalacion = null;
+});
+  </script>
+
+</body>
+</html>
